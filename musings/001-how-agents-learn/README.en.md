@@ -10,6 +10,24 @@ Does that count as learning?
 
 At the system level, yes. At the model-training level, the model has merely received another piece of reading material. I use two deliberately informal names to keep these cases apart.
 
+```mermaid
+flowchart TB
+    A["Agent learning"] --> B["Open-book<br/>Context Learning"]
+    A --> C["Closed-book<br/>Parameter Learning"]
+    B --> B1["MD / Memory"]
+    B --> B2["RAG"]
+    B --> B3["Rules / Skills"]
+    B --> B4["Tool / DB"]
+    B1 --> B5["Parameters θ unchanged<br/>Knowledge, rules, preferences, and changing information"]
+    B2 --> B5
+    B3 --> B5
+    B4 --> B5
+    C --> C1["LoRA / Adapter<br/>W + ΔW"]
+    C --> C2["Full Fine-tuning<br/>W → W′"]
+    C1 --> C3["Stable capabilities and behavior"]
+    C2 --> C3
+```
+
 ## The open-book Markdown approach
 
 Before a task, the agent loads the user's preferences, project rules, relevant memories, and current request into the context window. The material may come from Markdown files, a database, RAG, a knowledge graph, or a skill. Markdown is simply the easiest version to inspect.
@@ -24,6 +42,22 @@ PROJECT_RULES.md
 Relevant memories or retrieved documents
   ↓
 LLM
+```
+
+Expanded into its working parts, the path looks like this.
+
+```mermaid
+flowchart TB
+    A["Current user prompt"] --> G["Assemble the context"]
+    B["Memory / user preferences"] --> G
+    C["Rules / Skills"] --> G
+    D["Project Markdown"] --> F["Task-specific retrieval"]
+    E["DB / RAG / external knowledge"] --> F
+    F --> G
+    G --> H["LLM inference"]
+    H --> I["Agent decisions and tool calls"]
+    I --> J["Task outcome"]
+    J -. "Verified new experience" .-> B
 ```
 
 If the model parameters are denoted by $\theta$, then
@@ -43,6 +77,25 @@ A growing context window is not, by itself, a reason to fine-tune. We can retrie
 The second approach changes parameterized behavior.
 
 An agent can retain task trajectories containing prompts, tool calls, final answers, user edits, and verified outcomes. After careful filtering, those records can support supervised fine-tuning, preference optimization, or another post-training method. LoRA is one practical option.
+
+```mermaid
+flowchart TB
+    A["A batch of past agent tasks"] --> B["Prompts"]
+    A --> C["Tool calls and results"]
+    A --> D["Answers"]
+    A --> E["User acceptance, edits, or retries"]
+    A --> F["Task success or failure"]
+    B --> G["Verify, deduplicate, review privacy, and filter"]
+    C --> G
+    D --> G
+    E --> G
+    F --> G
+    G --> H["Build SFT / preference-training data"]
+    H --> I["LoRA Training"]
+    I --> J["Parameter update ΔW"]
+    K["Frozen parent weights W"] --> L["Agent model version W + ΔW"]
+    J --> L
+```
 
 For a model weight matrix $W$, LoRA freezes the original weights and learns two smaller low-rank matrices, $A$ and $B$. A common expression is
 
@@ -72,20 +125,23 @@ A user accepting an answer is a weak signal. They may simply be tired of revisin
 
 Agent logs therefore need outcome verification, deduplication, privacy review, and quality filtering before they become training data. High-stakes domains such as medicine and finance also require qualified human review. Letting a model grade its own output and immediately train on that grade is an efficient way to preserve mistakes.
 
-```text
-Task logs and feedback
-  ↓
-Outcome verification
-  ↓
-Deduplication, privacy review, and filtering
-  ↓
-Training pool
-  ↓
-Periodic candidate adapter training
-  ↓
-Fixed evaluation and safety checks
-  ↓
-Canary release or rejection
+```mermaid
+flowchart TB
+    A["User task"] --> B["Parent model + current adapter"]
+    B --> C["Agent executes the task"]
+    C --> D["Immediate experience"]
+    C --> E["Task logs and feedback"]
+    D --> F["Update MD / Memory<br/>Open-book learning"]
+    E --> G["Verify outcomes, deduplicate, review privacy, and filter"]
+    G --> H["Training Pool"]
+    H --> I{"Enough data<br/>and a stable capability gap"}
+    I -- "No" --> H
+    I -- "Yes" --> J["Train candidate Adapter v2"]
+    J --> K["Benchmark vs v1"]
+    K -- "Fail" --> L["Reject candidate"]
+    K -- "Pass" --> M["Canary release"]
+    M --> N["Production"]
+    N --> C
 ```
 
 Training should not start merely because the system has collected ten thousand prompts. It needs enough high-quality data and evidence of a stable, repeated capability gap. Without both conditions, post-training mostly teaches the model about noise.
@@ -111,6 +167,20 @@ Medical and financial systems demand stricter validation, auditability, and huma
 ## My decision rule
 
 I start with the simplest test. Can one clear rule solve the problem? If it can, the rule goes into Markdown, a skill, or configuration. When the material grows, retrieval limits what enters the prompt. Deterministic work moves into tools and workflows.
+
+```mermaid
+flowchart TB
+    A["Use the open-book system by default"] --> B["A repeated error appears"]
+    B --> C{"Can one explicit rule solve it"}
+    C -- "Yes" --> D["Update MD / Skill / configuration"]
+    C -- "No" --> E{"Can deterministic code solve it"}
+    E -- "Yes" --> F["Improve the Tool / Workflow"]
+    E -- "No" --> G{"Does correct behavior require<br/>many examples to describe"}
+    G -- "No" --> H["Keep improving context and retrieval"]
+    G -- "Yes" --> I{"Does the error persist<br/>in a fixed evaluation"}
+    I -- "No" --> H
+    I -- "Yes" --> J["Enter the LoRA Training Pool"]
+```
 
 Only a stable failure that survives those changes becomes a LoRA candidate. It also needs enough reviewed examples to describe the desired behavior. A candidate adapter reaches production only after it beats the current version on fixed capability and safety evaluations.
 
