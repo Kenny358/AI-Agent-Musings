@@ -10,6 +10,10 @@ Does that count as learning?
 
 At the system level, yes. At the model-training level, the model has merely received another piece of reading material. I use two deliberately informal names to keep these cases apart.
 
+I call the first approach open-book because the model does not need anything new in its brain. Before each task, the agent prepares the reference material for that particular exam, effectively a cheat sheet. The model reads it on the spot, completes the task, and finishes with the same parameters it had before.
+
+I call the second approach closed-book. The current task still reaches the model as a prompt, but the past lesson no longer needs to return as external reference material. Training puts a new behavior or capability into the parameters. The next time a similar task appears, the model may act differently even when the old lesson is absent from the prompt.
+
 ```mermaid
 flowchart TB
     A["Agent learning"] --> B["Open-book<br/>Context Learning"]
@@ -30,7 +34,7 @@ flowchart TB
 
 ## The open-book Markdown approach
 
-Before a task, the agent loads the user's preferences, project rules, relevant memories, and current request into the context window. The material may come from Markdown files, a database, RAG, a knowledge graph, or a skill. Markdown is simply the easiest version to inspect.
+Each task gets its own cheat sheet. The model does not need to memorize the user's preferences or project rules. The agent only needs to retrieve the right material and place it in the context before the exam begins. That material may come from Markdown files, a database, RAG, a knowledge graph, or a skill. Markdown is simply the easiest version to inspect.
 
 ```text
 User task
@@ -74,7 +78,7 @@ A growing context window is not, by itself, a reason to fine-tune. We can retrie
 
 ## The closed-book parameter approach
 
-The second approach changes parameterized behavior. LoRA is one implementation, and it is especially convenient for versioning agent behavior.
+The second approach puts the result of practice into model parameters. During the exam, the model relies on its trained parameters instead of rereading that experience. LoRA is one implementation, and it is especially convenient for versioning agent behavior.
 
 An agent can retain task trajectories containing prompts, tool calls, final answers, user edits, and verified outcomes. After careful filtering, those records can support supervised fine-tuning, or SFT, preference optimization, and other post-training methods. LoRA is one practical option. For convenience, I will call the original base model the parent model below.
 
