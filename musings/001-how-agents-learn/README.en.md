@@ -26,11 +26,11 @@ Relevant memories or retrieved documents
 LLM
 ```
 
-If the model parameters are denoted by \(\theta\), then
+If the model parameters are denoted by $\theta$, then
 
-\[
+$$
 \theta_{t+1}=\theta_t
-\]
+$$
 
 The model has not changed. It walks into each exam carrying the right notes.
 
@@ -44,11 +44,11 @@ The second approach changes parameterized behavior.
 
 An agent can retain task trajectories containing prompts, tool calls, final answers, user edits, and verified outcomes. After careful filtering, those records can support supervised fine-tuning, preference optimization, or another post-training method. LoRA is one practical option.
 
-For a model weight matrix \(W\), LoRA freezes the original weights and learns two smaller low-rank matrices, \(A\) and \(B\). A common expression is
+For a model weight matrix $W$, LoRA freezes the original weights and learns two smaller low-rank matrices, $A$ and $B$. A common expression is
 
-\[
+$$
 W'=W+\frac{\alpha}{r}BA
-\]
+$$
 
 The base weights remain intact while the adapter supplies a learned update. The model may now behave differently even when the old lesson is absent from the prompt. In that sense, the lesson has moved into parameters.
 
