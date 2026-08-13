@@ -72,11 +72,11 @@ This approach works well for user preferences, project conventions, explicit pol
 
 A growing context window is not, by itself, a reason to fine-tune. We can retrieve only the relevant passages, compress old memories, and move deterministic steps into tools or workflows. Many apparent capability failures are retrieval or orchestration failures in disguise.
 
-## The closed-book periodic LoRA approach
+## The closed-book parameter approach
 
-The second approach changes parameterized behavior.
+The second approach changes parameterized behavior. LoRA is one implementation, and it is especially convenient for versioning agent behavior.
 
-An agent can retain task trajectories containing prompts, tool calls, final answers, user edits, and verified outcomes. After careful filtering, those records can support supervised fine-tuning, preference optimization, or another post-training method. LoRA is one practical option.
+An agent can retain task trajectories containing prompts, tool calls, final answers, user edits, and verified outcomes. After careful filtering, those records can support supervised fine-tuning, or SFT, preference optimization, and other post-training methods. LoRA is one practical option. For convenience, I will call the original base model the parent model below.
 
 ```mermaid
 flowchart TB
@@ -105,7 +105,7 @@ $$
 
 The base weights remain intact while the adapter supplies a learned update. The model may now behave differently even when the old lesson is absent from the prompt. In that sense, the lesson has moved into parameters.
 
-I like to think of the base model as the parent model, with versioned adapters stored beside it.
+Versioned adapters can be stored beside the parent model.
 
 ```text
 Qwen Base
@@ -118,6 +118,8 @@ Qwen Base
 Keeping the base checkpoint and older adapters makes switching and rollback straightforward. It also makes LoRA attractive for low-cost, isolated experiments.
 
 Rollback does not make an adapter inherently safe. It can still overfit, reinforce bad examples, or degrade an older capability. Full fine-tuning can also be rolled back when the original checkpoint has been preserved. The dangerous setup is the one with no versioned checkpoint, no evaluation, and no recovery path.
+
+Closed-book learning can also update the parent weights directly through full fine-tuning. LoRA learns an update stored beside the parent model, while full fine-tuning produces a new set of parent weights. Both are forms of parameter learning. They differ in update scope, training cost, and version isolation.
 
 ## Logs are raw material, not a training set
 
@@ -146,11 +148,29 @@ flowchart TB
 
 Training should not start merely because the system has collected ten thousand prompts. It needs enough high-quality data and evidence of a stable, repeated capability gap. Without both conditions, post-training mostly teaches the model about noise.
 
-## Online and periodic describe timing
+## After choosing how to learn, choose when to update
 
-Online learning does not need to be a third category in this framework. Online and periodic describe when an update happens. Markdown, LoRA, and full fine-tuning describe how it happens.
+So far, we have answered one question. How does the agent learn? The open-book system changes material outside the parameters. The closed-book system trains parameters.
 
-Memory can be updated immediately or consolidated periodically. Parameter updates can also occur continuously or in batches. Updating weights after every agent task is theoretically possible, but difficult to control. Bad feedback, shifting data, and catastrophic forgetting can accumulate quickly.
+Engineering introduces another question. When does the update happen? The system may process each new experience as it arrives, or collect a batch and process it later. The first is usually described as real-time or online updating. The second is periodic or batch updating.
+
+```mermaid
+flowchart LR
+    A["Agent learning"] --> B["How it learns"]
+    A --> C["When it updates"]
+    B --> B1["Open-book<br/>Context Learning"]
+    B --> B2["Closed-book<br/>Parameter Learning"]
+    C --> C1["Real-time / online"]
+    C --> C2["Periodic / batch"]
+    B1 -. "Can combine" .-> C1
+    B1 -. "Can combine" .-> C2
+    B2 -. "Can combine" .-> C1
+    B2 -. "Can combine" .-> C2
+```
+
+There is no need for a mysterious third learning mechanism. Timing and method are separate dimensions. Memory can be updated immediately or consolidated periodically. Parameter updates can also occur continuously or in batches.
+
+Updating weights after every agent task is theoretically possible, but difficult to control. Bad feedback, shifting data, and catastrophic forgetting can accumulate quickly.
 
 An asynchronous pipeline is easier to reason about. The production model keeps serving users while a candidate adapter trains in the background. The candidate faces the same benchmark as the current version, followed by a small canary release. Failed candidates are discarded, and production can return to an earlier adapter.
 
