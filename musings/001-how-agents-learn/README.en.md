@@ -10,11 +10,13 @@ Does that count as learning?
 
 At the system level, yes. At the model-training level, the model has merely received another piece of reading material. I use two deliberately informal names to keep these cases apart.
 
-Picture an open-book exam. The student does not need to memorize every formula as long as the right reference sheet comes into the room. A math exam gets a formula sheet. A project task gets `PROJECT_RULES.md`. User preferences wait inside `USER_PREFERENCE.md`. The question arrives, the student looks things up, and the work gets done. When the book closes, the student's brain has not been rewritten.
+Picture an open-book exam. Forgetting one formula is fine if the right reference sheet comes into the room. A math exam gets a formula sheet. A project task gets `PROJECT_RULES.md`. User preferences wait inside `USER_PREFERENCE.md`. The notes still have to match the exam. Bringing a world-history textbook into a calculus test gives you plenty to read and very little help.
 
 That is my open-book agent. Before every task, the agent prepares a cheat sheet for that particular question. Markdown, memory, RAG, and skills can all contribute. The model parameters stay put. Swap the sheet, and the same model can immediately follow a different set of instructions.
 
-A closed-book exam asks more of the student. The notes stay outside, so practice has to leave something in the student's head. For a model, that means training repeated experience into parameters. When a similar task appears later, the model may know what to do even if the agent does not paste the old lesson into the prompt again.
+A closed-book exam asks more of the student. The notes stay outside, so preparation involves memorizing, practicing, and revisiting mistakes. Human learning involves complex biological changes, including changes in neural connections. The analogy only borrows that intuition. A human brain and a neural network are not the same machine.
+
+Large models do not attend evening study hall. Their preparation is training. Data arrives in batches, gradients update the model step by step, and the parameters change. When the model sits the next exam, some trace of that practice is already in its parameters. The agent no longer needs to hide the old answer sheet under the exam paper.
 
 Closed-book does not mean question-free. The current task still arrives as a prompt, just as a teacher still hands out the exam paper. What stays outside is the answer sheet and the old notes, not the question itself.
 
@@ -38,7 +40,7 @@ flowchart TB
 
 ## The open-book Markdown approach
 
-The open-book side is mostly a job of finding the right notes. The model does not need to memorize user preferences or project rules. The agent retrieves them and places them in the context before the exam begins. That material may come from Markdown files, a database, RAG, a knowledge graph, or a skill. Markdown is simply the easiest version to inspect.
+The open-book side is mostly a job of finding the right notes. The model does not need to memorize user preferences or project rules. The agent retrieves them and places them in the context before the exam begins. Fetch the wrong material, and the model may read it very carefully before answering the wrong question. That material may come from Markdown files, a database, RAG, a knowledge graph, or a skill. Markdown is simply the easiest version to inspect.
 
 ```text
 User task
@@ -82,7 +84,7 @@ A growing context window is not, by itself, a reason to fine-tune. We can retrie
 
 ## The closed-book parameter approach
 
-The closed-book side requires practice. We collect the questions the model handled well, the mistakes it keeps repeating, and the corrections worth keeping. Training then moves the useful part into parameters. LoRA is one way to do this, and it is especially convenient for versioning agent behavior.
+The closed-book side requires practice. We collect the questions the model handled well, the mistakes it keeps repeating, and the corrections worth keeping. Training then moves the useful part into parameters. LoRA is one way to do this. Roughly speaking, it gives the parent model a replaceable set of answering habits.
 
 An agent can retain task trajectories containing prompts, tool calls, final answers, user edits, and verified outcomes. After careful filtering, those records can support supervised fine-tuning, or SFT, preference optimization, and other post-training methods. LoRA is one practical option. For convenience, I will call the original base model the parent model below.
 
