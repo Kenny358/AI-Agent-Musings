@@ -10,9 +10,13 @@ Does that count as learning?
 
 At the system level, yes. At the model-training level, the model has merely received another piece of reading material. I use two deliberately informal names to keep these cases apart.
 
-I call the first approach open-book because the model does not need anything new in its brain. Before each task, the agent prepares the reference material for that particular exam, effectively a cheat sheet. The model reads it on the spot, completes the task, and finishes with the same parameters it had before.
+Picture an open-book exam. The student does not need to memorize every formula as long as the right reference sheet comes into the room. A math exam gets a formula sheet. A project task gets `PROJECT_RULES.md`. User preferences wait inside `USER_PREFERENCE.md`. The question arrives, the student looks things up, and the work gets done. When the book closes, the student's brain has not been rewritten.
 
-I call the second approach closed-book. The current task still reaches the model as a prompt, but the past lesson no longer needs to return as external reference material. Training puts a new behavior or capability into the parameters. The next time a similar task appears, the model may act differently even when the old lesson is absent from the prompt.
+That is my open-book agent. Before every task, the agent prepares a cheat sheet for that particular question. Markdown, memory, RAG, and skills can all contribute. The model parameters stay put. Swap the sheet, and the same model can immediately follow a different set of instructions.
+
+A closed-book exam asks more of the student. The notes stay outside, so practice has to leave something in the student's head. For a model, that means training repeated experience into parameters. When a similar task appears later, the model may know what to do even if the agent does not paste the old lesson into the prompt again.
+
+Closed-book does not mean question-free. The current task still arrives as a prompt, just as a teacher still hands out the exam paper. What stays outside is the answer sheet and the old notes, not the question itself.
 
 ```mermaid
 flowchart TB
@@ -34,7 +38,7 @@ flowchart TB
 
 ## The open-book Markdown approach
 
-Each task gets its own cheat sheet. The model does not need to memorize the user's preferences or project rules. The agent only needs to retrieve the right material and place it in the context before the exam begins. That material may come from Markdown files, a database, RAG, a knowledge graph, or a skill. Markdown is simply the easiest version to inspect.
+The open-book side is mostly a job of finding the right notes. The model does not need to memorize user preferences or project rules. The agent retrieves them and places them in the context before the exam begins. That material may come from Markdown files, a database, RAG, a knowledge graph, or a skill. Markdown is simply the easiest version to inspect.
 
 ```text
 User task
@@ -78,7 +82,7 @@ A growing context window is not, by itself, a reason to fine-tune. We can retrie
 
 ## The closed-book parameter approach
 
-The second approach puts the result of practice into model parameters. During the exam, the model relies on its trained parameters instead of rereading that experience. LoRA is one implementation, and it is especially convenient for versioning agent behavior.
+The closed-book side requires practice. We collect the questions the model handled well, the mistakes it keeps repeating, and the corrections worth keeping. Training then moves the useful part into parameters. LoRA is one way to do this, and it is especially convenient for versioning agent behavior.
 
 An agent can retain task trajectories containing prompts, tool calls, final answers, user edits, and verified outcomes. After careful filtering, those records can support supervised fine-tuning, or SFT, preference optimization, and other post-training methods. LoRA is one practical option. For convenience, I will call the original base model the parent model below.
 
