@@ -8,17 +8,17 @@ Suppose a user repeatedly asks the agent to show a diff before editing a file. T
 
 Does that count as learning?
 
-At the system level, yes. At the model-training level, the model has merely received another piece of reading material. I use two deliberately informal names to keep these cases apart.
+At the system level, yes. At the model-training level, the model has merely received another piece of reading material. I use two deliberately informal names to keep these cases apart. One is the open-book approach. The other is the closed-book approach.
 
 Picture an open-book exam. Forgetting one formula is fine if the right reference sheet comes into the room. A math exam gets a formula sheet. A project task gets `PROJECT_RULES.md`. User preferences wait inside `USER_PREFERENCE.md`. The notes still have to match the exam. Bringing a world-history textbook into a calculus test gives you plenty to read and very little help.
 
-That is my open-book agent. Before every task, the agent prepares a cheat sheet for that particular question. Markdown, memory, RAG, and skills can all contribute. The model parameters stay put. Swap the sheet, and the same model can immediately follow a different set of instructions.
+That is where the name open-book comes from. Before every task, the agent prepares a cheat sheet for that particular question. Markdown, memory, RAG, and skills can all contribute. The model parameters stay put. Swap the sheet, and the same model can immediately follow a different set of instructions.
 
 A closed-book exam asks more of the student. The notes stay outside, so preparation involves memorizing, practicing, and revisiting mistakes. Human learning involves complex biological changes, including changes in neural connections. The analogy only borrows that intuition. A human brain and a neural network are not the same machine.
 
 Large models do not attend evening study hall. Their preparation is training. Data arrives in batches, gradients update the model step by step, and the parameters change. When the model sits the next exam, some trace of that practice is already in its parameters. The agent no longer needs to hide the old answer sheet under the exam paper.
 
-Closed-book does not mean question-free. The current task still arrives as a prompt, just as a teacher still hands out the exam paper. What stays outside is the answer sheet and the old notes, not the question itself.
+A closed-book exam still comes with an exam paper, and the model still receives the current prompt. The agent simply stops slipping past experience into the context as a cheat sheet.
 
 ```mermaid
 flowchart TB
@@ -84,9 +84,9 @@ A growing context window is not, by itself, a reason to fine-tune. We can retrie
 
 ## The closed-book parameter approach
 
-The closed-book side requires practice. We collect the questions the model handled well, the mistakes it keeps repeating, and the corrections worth keeping. Training then moves the useful part into parameters. LoRA is one way to do this. Roughly speaking, it gives the parent model a replaceable set of answering habits.
+I will call the original base model, before this round of training, the parent model. The closed-book side requires practice. We collect the questions the model handled well, the mistakes it keeps repeating, and the corrections worth keeping. Training then moves the useful part into parameters. LoRA is one way to do this. Roughly speaking, it gives the parent model a replaceable set of answering habits.
 
-An agent can retain task trajectories containing prompts, tool calls, final answers, user edits, and verified outcomes. After careful filtering, those records can support supervised fine-tuning, or SFT, preference optimization, and other post-training methods. LoRA is one practical option. For convenience, I will call the original base model the parent model below.
+An agent can retain task trajectories containing prompts, tool calls, final answers, user edits, and verified outcomes. After careful filtering, those records can support supervised fine-tuning, or SFT, preference optimization, and other post-training methods. LoRA is one practical option.
 
 ```mermaid
 flowchart TB
@@ -178,7 +178,7 @@ flowchart LR
     B2 -. "Can combine" .-> C2
 ```
 
-There is no need for a mysterious third learning mechanism. Timing and method are separate dimensions. Memory can be updated immediately or consolidated periodically. Parameter updates can also occur continuously or in batches.
+Timing and method are separate dimensions. Memory can be updated immediately or consolidated periodically. Parameter updates can also occur continuously or in batches.
 
 Updating weights after every agent task is theoretically possible, but difficult to control. Bad feedback, shifting data, and catastrophic forgetting can accumulate quickly.
 
@@ -215,7 +215,3 @@ flowchart TB
 Only a stable failure that survives those changes becomes a LoRA candidate. It also needs enough reviewed examples to describe the desired behavior. A candidate adapter reaches production only after it beats the current version on fixed capability and safety evaluations.
 
 The open-book system learns quickly because an edited document can affect the next task. The closed-book system learns slowly because it requires evidence, training, evaluation, and deployment. One follows change. The other develops stable behavioral habits.
-
-That gives me two practical routes for agent learning. Keep knowledge, rules, and preferences outside the model and retrieve them when needed. Move repeated and hard-to-specify capability gaps toward parameter learning only after they have been verified.
-
-An agent that respects this boundary is less likely to carve every accidental success and failure into its future behavior.
