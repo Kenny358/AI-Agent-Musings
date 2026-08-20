@@ -54,7 +54,9 @@ LLM
 
 设当前 Harness 为
 
-$$ H=(P,S,T,M,W,A,\ldots) $$
+```math
+H=(P,S,T,M,W,A,\ldots)
+```
 
 这里的 `P` 是 Prompt，`S` 是 Skills，`T` 是 Tools，`M` 是 Memory，`W` 是 Middleware 或 Workflow，`A` 是 Sub-agents。字母只是为了让后面的公式短一点，不需要把它们当成新的术语背下来。
 
@@ -97,7 +99,9 @@ debugging.md -= 0.001 × gradient
 
 目标依然可以写成
 
-$ H^*=\arg\max_H J(H) $
+```math
+H^*=\arg\max_H J(H)
+```
 
 $J(H)$ 是当前 Harness 在任务上的表现。训练这件事能成立，因为这里有可修改的对象，有任务反馈，有修改方法，也有选择候选版本的标准。少了梯度，并不会让优化目标一起消失。
 
@@ -131,7 +135,9 @@ Executor 就是正在被训练的 Agent。给它一个任务和当前 Harness，
 
 假设任务 $i$ 跑了 $k$ 次，每次结果记作 $r_{ij}$，其中成功为 1，失败为 0。这道题的成功率是
 
-$$ p_i=\frac{1}{k}\sum_{j=1}^{k}r_{ij} $$
+```math
+p_i=\frac{1}{k}\sum_{j=1}^{k}r_{ij}
+```
 
 不过训练材料远比一个 $3/5$ 丰富。我们还要保存任务内容、完整对话、工具调用、观察结果、报错、终端输出、最终状态、Verifier 结果、Token、步数和运行时间。
 
@@ -169,11 +175,17 @@ Evolver 读当前 Harness 和 Debugger 的诊断，提出一个候选修改。
 
 如果喜欢用公式看过程，可以把一轮训练压成三步。Executor 先用当前 Harness $H_t$ 产生执行轨迹 $\tau_t$，Debugger 把轨迹和结果压成诊断 $d_t$，Evolver 再生成下一版 Harness。
 
-$$ \tau_t=\mathrm{Executor}(H_t,D_{train}) $$
+```math
+\tau_t=\mathrm{Executor}(H_t,D_{train})
+```
 
-$$ d_t=\mathrm{Debugger}(\tau_t,R_t) $$
+```math
+d_t=\mathrm{Debugger}(\tau_t,R_t)
+```
 
-$$ H_{t+1}=\mathrm{Evolver}(H_t,d_t) $$
+```math
+H_{t+1}=\mathrm{Evolver}(H_t,d_t)
+```
 
 这和传统机器学习有一组很有意思的对应关系。
 
@@ -252,7 +264,9 @@ flowchart LR
 
 八类分别碰到专项瓶颈以后，训练才进入全局阶段。此时所有类别重新回到同一张成绩表上，总体目标更接近
 
-$$ \max_H\min_c S_c(H) $$
+```math
+\max_H\min_c S_c(H)
+```
 
 先照顾最弱的一科。System 九十二分、Coding 九十分，Database 五十一分、Complex Tasks 四十七分，这时宣布 Agent 已经全面发展，多少有点偏科生拿总分骗家长的味道。Phase II 会根据八类 Validation 表现安排训练批次，当前短板获得更多注意力，同时继续检查已经变强的类别有没有往下掉。
 
@@ -369,7 +383,9 @@ K-Fold 最有价值的结果是训练算法在不同数据划分下的平均提�
 
 因此每类任务数量要尽量接近，主指标采用各类别正确率的宏平均。
 
-$$ \mathrm{MacroAccuracy}=\frac{1}{C}\sum_{c=1}^{C}S_c $$
+```math
+\mathrm{MacroAccuracy}=\frac{1}{C}\sum_{c=1}^{C}S_c
+```
 
 这样每个类别拥有相近权重，不会因为某类题特别多就接管总分。
 
@@ -401,7 +417,9 @@ Evolver 最容易做的事是继续加。一次失败，加一条规则。下一
 
 修改影响可以用一个预算约束。设一次修改为 $\Delta H$，影响量记作
 
-$$ I(\Delta H)=\alpha N_f+\beta N_c+\gamma T_\Delta+\delta R_s $$
+```math
+I(\Delta H)=\alpha N_f+\beta N_c+\gamma T_\Delta+\delta R_s
+```
 
 $N_f$ 是文件数量，$N_c$ 是组件数量，$T_\Delta$ 是 Token 变化，$R_s$ 表示语义影响范围。局部 Skill 的修改和全局 System Prompt 重写，显然不该算成同一量级。
 
@@ -415,7 +433,9 @@ Atomic Update 管住一次修改的手脚，仍然挡不住 Harness 每轮都加
 
 只优化正确率，Evolver 会不断增加规则、工具和上下文。我们需要给复杂度收费。
 
-$$ C(H)=\alpha T_H+\beta N_S+\gamma N_T+\delta L_{ctx}+\eta E_{runtime} $$
+```math
+C(H)=\alpha T_H+\beta N_S+\gamma N_T+\delta L_{ctx}+\eta E_{runtime}
+```
 
 $T_H$ 是 Harness 总 Token，$N_S$ 是 Skill 数，$N_T$ 是 Tool 数，$L_{ctx}$ 是平均加载上下文，$E_{runtime}$ 是额外执行开销。
 
@@ -433,23 +453,31 @@ Harness 的操作空间应该包含 ADD、MODIFY、DELETE、MERGE 和 SPLIT。
 
 设第 $t$ 轮的能力向量为
 
-$$ \mathbf S_t=[S_1,S_2,\ldots,S_C] $$
+```math
+\mathbf S_t=[S_1,S_2,\ldots,S_C]
+```
 
 候选 Harness 的 Macro Accuracy 可能上升，同时某一类明显下降。System 和 Network 各涨一点，Complex Tasks 掉六分，总平均仍有机会变好。这样的版本不该自动通过。
 
 可以给每个类别设置允许回退的上限
 
-$$ S_c^{(t+1)}-S_c^{(t)}\ge -\delta_c $$
+```math
+S_c^{(t+1)}-S_c^{(t)}\ge -\delta_c
+```
 
 Harness 同样会遗忘。新 Skill 改变了工具选择，旧任务可能因此退化。保存每类历史最佳成绩，就能计算当前版本离自己最好状态退了多少。Validation Gate 应该同时看总体提升、单类回归和遗忘程度。
 
 一种简单的最大遗忘指标是
 
-$$ F_t=\max_c\left(S_c^{best}-S_c^{(t)}\right) $$
+```math
+F_t=\max_c\left(S_c^{best}-S_c^{(t)}\right)
+```
 
 它专门盯住退步最严重的类别。再算一个平均遗忘量，可以看到 Harness 是否在许多类别上同时小幅退步。
 
-$$ F_{avg}=\frac{1}{C}\sum_c\max\left(0,S_c^{best}-S_c^{(t)}\right) $$
+```math
+F_{avg}=\frac{1}{C}\sum_c\max\left(0,S_c^{best}-S_c^{(t)}\right)
+```
 
 最大值负责盯住最惨的一科，平均值负责发现一片不太显眼的小退步。数值怎样设需要实验，方向很明确，候选版本不能只交一张总分上涨的截图。
 
@@ -461,7 +489,9 @@ $$ F_{avg}=\frac{1}{C}\sum_c\max\left(0,S_c^{best}-S_c^{(t)}\right) $$
 
 更实际的做法是 Batch 加 Adaptive Sampling。稳定成功或稳定失败的题少跑，时好时坏的题增加 rollout。本轮修改影响到的类别和关键代表任务也可以多跑几次。
 
-$$ k_i=f(\mathrm{uncertainty}_i) $$
+```math
+k_i=f(\mathrm{uncertainty}_i)
+```
 
 这里的 $k_i$ 是任务 $i$ 获得的 rollout 数量。预算跟着不确定性走，不必平均撒给每一道题。
 
@@ -501,7 +531,9 @@ Model Transfer 也很有意思。用一个底层模型训练出 Harness，冻结
 
 最后，我们想优化的目标不只有正确率。
 
-$$ H^*=\arg\max_H\left[J_{\mathrm{generalization}}(H)-\lambda C(H)-\mu F(H)-\nu E(H)\right] $$
+```math
+H^*=\arg\max_H\left[J_{\mathrm{generalization}}(H)-\lambda C(H)-\mu F(H)-\nu E(H)\right]
+```
 
 $J_{\mathrm{generalization}}$ 衡量泛化表现，$C(H)$ 是 Harness 复杂度，$F(H)$ 记录遗忘和能力回退，$E(H)$ 计算 Token、步数和时间等执行成本。
 
