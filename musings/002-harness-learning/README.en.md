@@ -55,7 +55,7 @@ We usually treat these components as engineering artifacts written by people. AH
 Let the current harness be
 
 $$
-H=\{P,S,T,M,W,A,\ldots\}
+H=(P,S,T,M,W,A,\ldots)
 $$
 
 Here, $P$ denotes prompts, $S$ skills, $T$ tools, $M$ memory, $W$ middleware or workflows, and $A$ sub-agents.

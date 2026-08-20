@@ -54,7 +54,7 @@ LLM
 
 设当前 Harness 为
 
-$$ H=\{P,S,T,M,W,A,\ldots\} $$
+$$ H=(P,S,T,M,W,A,\ldots) $$
 
 这里的 `P` 是 Prompt，`S` 是 Skills，`T` 是 Tools，`M` 是 Memory，`W` 是 Middleware 或 Workflow，`A` 是 Sub-agents。字母只是为了让后面的公式短一点，不需要把它们当成新的术语背下来。
 
