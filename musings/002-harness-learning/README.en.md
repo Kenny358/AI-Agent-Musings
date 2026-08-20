@@ -4,7 +4,7 @@
 
 After finishing the first lesson on how agents learn, I was left with another question.
 
-We send an agent into a benchmark. It receives a task, opens a terminal, calls tools, bumps into a few errors, and eventually submits its work. A verifier inspects the final environment and returns PASS or FAIL. After a few dozen tasks, the leaderboard has a new score and the experiment folder has a new pile of logs.
+We send an agent into a benchmark. For a concrete example, consider the structured terminal-task benchmark [Terminal-Bench 2.0](https://www.tbench.ai/leaderboard/terminal-bench/2.0). The agent receives a task in a real terminal environment, opens a shell, calls tools, bumps into a few errors, and eventually submits its work. A verifier then checks whether the environment meets the acceptance criteria. After a few dozen tasks, the leaderboard has a new score and the experiment folder has a new pile of logs.
 
 Then what?
 
@@ -54,9 +54,9 @@ We usually treat these components as engineering artifacts written by people. AH
 
 Let the current harness be
 
-$$
-H=(P,S,T,M,W,A,\ldots)
-$$
+```text
+H = {P, S, T, M, W, A, ...}
+```
 
 Here, $P$ denotes prompts, $S$ skills, $T$ tools, $M$ memory, $W$ middleware or workflows, and $A$ sub-agents.
 
@@ -105,7 +105,7 @@ $$
 
 $J(H)$ measures how well a harness performs on the task distribution. Training is possible because we have something editable, observable feedback, an update procedure, and an independent selection rule. A missing gradient does not make the optimization problem disappear.
 
-A FAIL result contains only one bit of information. It says the task failed, but it does not explain whether the agent chose the wrong tool, ignored an error, or declared victory one command too early. Someone still has to review the paper.
+A Terminal-Bench verifier does not necessarily return a bare FAIL. Depending on the task, it may expose individual test results, error output, or partial credit. Those signals identify which acceptance condition was missed. They usually do not explain why the agent's working process produced that state. The same failed check may come from choosing the wrong tool, ignoring a critical output, or declaring victory one command too early. Someone still has to review the trajectory.
 
 ### Three roles make a small agent tutoring school
 
@@ -147,7 +147,7 @@ The Debugger compares multiple successful and failed rollouts of the same task.
 
 Suppose successful attempts check the exit code after a critical command and then verify the target state. Failed attempts continue immediately, letting one unnoticed error travel to the end. The diagnosis can then identify a repeated defect, the likely harness component, and a proposed direction for repair.
 
-Some researchers describe this diagnosis as a `semantic gradient`. The analogy is useful as long as we respect its limits. It is not a computable gradient. It only suggests a promising semantic direction for the Evolver.
+Some researchers describe this diagnosis as a `semantic gradient` because it points toward a possible update. A real gradient is numerical and can be used directly by an optimizer. Here, the result is a natural-language diagnosis such as “verify the target state after a critical change.” It gives the Evolver a direction, but it does not calculate the change or guarantee a better score.
 
 #### The Evolver revises the study method
 
