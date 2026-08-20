@@ -9,3 +9,4 @@ I try to explain the technology in ordinary human language. Every musing is avai
 ## Musings
 
 1. [Can an Agent Really Learn? From a Markdown File to a LoRA Adapter](musings/001-how-agents-learn/README.en.md) · [中文](musings/001-how-agents-learn/README.md)
+2. [Can an Agent Improve How It Studies After the Exam?](musings/002-harness-learning/README.en.md) · [中文](musings/002-harness-learning/README.md)
