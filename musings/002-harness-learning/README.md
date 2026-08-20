@@ -56,7 +56,7 @@ LLM
 
 $$ H=\{P,S,T,M,W,A,\ldots\} $$
 
-这里的 $P$ 是 Prompt，$S$ 是 Skills，$T$ 是 Tools，$M$ 是 Memory，$W$ 是 Middleware 或 Workflow，$A$ 是 Sub-agents。
+这里的 `P` 是 Prompt，`S` 是 Skills，`T` 是 Tools，`M` 是 Memory，`W` 是 Middleware 或 Workflow，`A` 是 Sub-agents。字母只是为了让后面的公式短一点，不需要把它们当成新的术语背下来。
 
 神经网络的参数是一长串数值。Harness 的参数却可能是一段自然语言、一份 YAML、一段 Python 代码或一条路由规则。它们能被人读懂，也能直接执行。我愿意把这块叫作语义参数空间，也就是 `Semantic Parameter Space`。
 
@@ -70,7 +70,7 @@ flowchart LR
     D --> E["新的 Harness H′"]
 ```
 
-模型还是那个模型，周围的资料、工具和做题流程已经换了。
+模型还是那个模型，周围的资料、工具和做题流程已经换了。把 Harness 叫作参数只解决了“改什么”，还没有回答“怎么改”。Markdown 文件不会像神经网络权重那样顺着梯度自己移动，这正是下一个麻烦。
 
 ### Markdown 没有梯度，怎么训练
 
@@ -137,6 +137,8 @@ $$ p_i=\frac{1}{k}\sum_{j=1}^{k}r_{ij} $$
 
 Terminal-Bench 的 Verifier 很适合干这件事。它主要检查最终环境是否满足任务要求。Agent 可以走一条和参考方案不同的路，中间也可以摔一跤，只要最后把环境修对，仍然能通过。我们训练的是解决任务的能力，不要求 Agent 背标准步骤。
 
+到这里，我们拿到了结果，也拿到了过程。可一份完整轨迹仍然只是案发现场，里面不会自动附上一张根因分析。Debugger 得从这些痕迹里找出真正反复发生的问题。
+
 #### Debugger 负责讲错题
 
 Debugger 拿到同一道题的多个 rollout，把成功和失败放在一起看。
@@ -155,7 +157,7 @@ Shell Skill 或 Tool feedback
 验证失败时重新诊断
 ```
 
-有人会把这种诊断叫作 `semantic gradient`。这个类比挺形象，边界也要守住。它没有给出一个可计算的梯度，只是告诉 Evolver，往哪个语义方向改更有希望。
+有人会把这种诊断叫作 `semantic gradient`。这个类比挺形象，边界也要守住。它没有给出一个可计算的梯度，只是告诉 Evolver，往哪个语义方向改更有希望。方向找到了，文件还没有动，真正落笔修改 Harness 的工作要交给 Evolver。
 
 #### Evolver 负责改学习方法
 
@@ -188,6 +190,8 @@ $$ H_{t+1}=\mathrm{Evolver}(H_t,d_t) $$
 | Epoch | 一轮或一批 Harness Evolution |
 | Checkpoint | Harness Git Snapshot |
 | Early Stopping | Validation 停止改善 |
+
+三个角色和一轮更新至此都有了。可训练系统不能永远抓到哪道错题就补哪道，它还需要课程安排。哪些能力先练，什么时候从单项题转向综合题，决定了下一部分的训练算法。
 
 ## 第二部分　这套训练具体怎样运行
 
@@ -285,6 +289,8 @@ flowchart TB
     F --> OOD["OOD Test<br/>新软件、新环境或新组合"]
 ```
 
+这张图画出了训练顺序，却默认每一扇门都有人看守。若训练题、选版本的题和最终考试混在一起，流程跑得再漂亮，也可能只是在反复背同一套题。
+
 ### 训练、验证和测试各守一扇门
 
 Harness evolution 会反复看任务、读 trajectory、改规则。只要存在多轮 iteration，它就已经具备类似 epoch 的训练过程。训练轮数一多，过拟合迟早会敲门。
@@ -323,7 +329,7 @@ flowchart TB
 
 训练任务可以被 Executor 反复执行。Debugger 能看到完整任务、trajectory、Verifier 结果和错误细节，Evolver 根据这些证据提出修改。
 
-一句话概括，Train trajectory 决定下一步往哪里改。
+一句话概括，Train trajectory 决定下一步往哪里改。它给得越具体，越容易推动修改，也越容易把 Harness 带向训练题本身。我们因此需要一组只负责踩刹车、不给答案的任务。
 
 #### Validation 负责在训练途中留一手
 
@@ -343,6 +349,8 @@ Final Test 在整个训练过程中封存。任务、Task Family、Verifier、�
 
 训练结束以后，我们从 Validation 表现中选出最佳 Harness，将它冻结，再第一次打开 Test。看完 Test 又继续修改 Harness，那套 Test 已经完成了使命。继续用它指导开发，只是给 Validation 换了一个更贵的名字。
 
+固定切分能守住基本边界。数据较少时，我们还会担心一次切分碰巧有利，于是才有下面的 K-Fold 讨论。
+
 #### K-Fold 留给研讨加餐
 
 数据量有限时，Stratified Group K-Fold 可以帮助估计 Harness Training 算法是否稳定。
@@ -352,6 +360,8 @@ Final Test 在整个训练过程中封存。任务、Task Family、Verifier、�
 不过每个 fold 都要完整跑一遍 evolution，计算成本很高。第一版 MVP 可以先用固定的 Train、Validation 和 Blind Test。K-Fold 作为附加讨论或稳定性实验，不能代替最终 Test。
 
 K-Fold 最有价值的结果是训练算法在不同数据划分下的平均提升和波动。例如五折都从同一个 $H_0$ 开始，最终可以报告 Validation 提升的均值与标准差。它回答“这套训练方法稳不稳”，Final Blind Test 回答“冻结后的最佳 Harness 在真正没见过的题上有多好”。两张成绩单不能互相顶替。
+
+门分清了，门后的题也得认真检查。若 Train 和 Test 只是同一道题换了软件名字，再严谨的切分也挡不住泄漏。
 
 ### 数据不能只是换个软件名字
 
@@ -375,6 +385,8 @@ $$ \mathrm{MacroAccuracy}=\frac{1}{C}\sum_{c=1}^{C}S_c $$
 
 ID Test 使用相同能力分布下的新任务族，检查 Agent 能否解决同类新题。OOD Test 再换软件、环境或任务组合，观察它有没有学到更通用的 Agent 策略。
 
+到这里，课程顺序、数据隔离和泛化测试都安排好了。系统仍然有办法钻空子。它可以每错一道题就加一条规则，用越来越长的 Prompt 和越来越多的尝试换分。第三部分要管住的就是这种“成绩涨了，学生也胖得走不动了”的进步。
+
 ## 第三部分　怎样证明它学会了，又没有学歪
 
 ### Agent 不能靠疯狂加规则拿分
@@ -397,6 +409,8 @@ Agent 越成熟，修改预算可以逐渐下降。后期每次改得更小，�
 
 这里有两个容易混在一起的门槛。`Modification Budget` 管一次允许改多大，成熟以后应该收紧。`Minimum Accepted Gain` 管分数至少改善多少，接近瓶颈以后可以接受更小的进步。收益门槛放低以后，重复 rollout、置信区间或多批验证要跟着变严。后期的原则是小改可以，小涨也可以，证据不能跟着缩水。
 
+Atomic Update 管住一次修改的手脚，仍然挡不住 Harness 每轮都加一点，半年以后胖成一本百科全书。还得把它的总体积和运行负担算进成绩。
+
 #### Harness 也需要控制体重
 
 只优化正确率，Evolver 会不断增加规则、工具和上下文。我们需要给复杂度收费。
@@ -412,6 +426,8 @@ $T_H$ 是 Harness 总 Token，$N_S$ 是 Skill 数，$N_T$ 是 Tool 数，$L_{ctx
 Harness 的操作空间应该包含 ADD、MODIFY、DELETE、MERGE 和 SPLIT。
 
 训练若干轮后，可以暂停增加新能力，进入 Consolidation。扫描重复 Skill，删除已经失效的规则，把三个意思相近的执行检查合并成一个更通用的 Skill。整理完重新跑 Validation，确认没有把有用的东西顺手扔掉。
+
+体重控制住以后，还要看它有没有偏科。一次修改可能让五类任务小涨，却把第六类已经学会的本事弄丢。
 
 #### 总分上涨也可能是拆东墙补西墙
 
@@ -436,6 +452,8 @@ $$ F_t=\max_c\left(S_c^{best}-S_c^{(t)}\right) $$
 $$ F_{avg}=\frac{1}{C}\sum_c\max\left(0,S_c^{best}-S_c^{(t)}\right) $$
 
 最大值负责盯住最惨的一科，平均值负责发现一片不太显眼的小退步。数值怎样设需要实验，方向很明确，候选版本不能只交一张总分上涨的截图。
+
+正确率、复杂度和遗忘都能算，实验账单也得算。同一道题多跑几次可以减少运气影响，跑得太多又可能把蛮力伪装成能力。
 
 ### 别把暴力搜索写成智力增长
 
@@ -462,6 +480,8 @@ Tokens    35K → 190K
 ```
 
 方案一很漂亮。方案二也许只是 Agent 学会了更有耐心地把所有门都撞一遍。它仍有研究价值，只是结论得按账单重写。
+
+这些护栏各自抓住一种作弊方式。最后还要把它们放进同一场受控实验，看看 Evolved Harness 的提升究竟能不能留到没见过的任务上。
 
 ### 怎样证明 Harness 真学会了
 
