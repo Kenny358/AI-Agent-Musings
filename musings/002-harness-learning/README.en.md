@@ -160,15 +160,15 @@ Every change should retain its evidence. Which failures triggered it? What root 
 One training round can be written in three steps.
 
 $$
-\tau_t=\operatorname{Executor}(H_t,D_{train})
+\tau_t=\mathrm{Executor}(H_t,D_{train})
 $$
 
 $$
-d_t=\operatorname{Debugger}(\tau_t,R_t)
+d_t=\mathrm{Debugger}(\tau_t,R_t)
 $$
 
 $$
-H_{t+1}=\operatorname{Evolver}(H_t,d_t)
+H_{t+1}=\mathrm{Evolver}(H_t,d_t)
 $$
 
 | Machine Learning | Harness Training |

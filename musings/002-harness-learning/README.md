@@ -174,15 +174,15 @@ Evolver 读当前 Harness 和 Debugger 的诊断，提出一个候选修改。
 如果喜欢用公式看过程，可以把一轮训练压成三步。Executor 先用当前 Harness $H_t$ 产生执行轨迹 $\tau_t$，Debugger 把轨迹和结果压成诊断 $d_t$，Evolver 再生成下一版 Harness。
 
 $$
-\tau_t=\operatorname{Executor}(H_t,D_{train})
+\tau_t=\mathrm{Executor}(H_t,D_{train})
 $$
 
 $$
-d_t=\operatorname{Debugger}(\tau_t,R_t)
+d_t=\mathrm{Debugger}(\tau_t,R_t)
 $$
 
 $$
-H_{t+1}=\operatorname{Evolver}(H_t,d_t)
+H_{t+1}=\mathrm{Evolver}(H_t,d_t)
 $$
 
 这和传统机器学习有一组很有意思的对应关系。
