@@ -374,7 +374,7 @@ K-Fold 最有价值的结果是训练算法在不同数据划分下的平均提�
 因此每类任务数量要尽量接近，主指标采用各类别正确率的宏平均。
 
 $$
-\text{MacroAccuracy}
+\mathrm{MacroAccuracy}
 =
 \frac{1}{C}\sum_{c=1}^{C}S_c
 $$
@@ -489,7 +489,7 @@ $$
 更实际的做法是 Batch 加 Adaptive Sampling。稳定成功或稳定失败的题少跑，时好时坏的题增加 rollout。本轮修改影响到的类别和关键代表任务也可以多跑几次。
 
 $$
-k_i=f(\text{uncertainty}_i)
+k_i=f(\mathrm{uncertainty}_i)
 $$
 
 这里的 $k_i$ 是任务 $i$ 获得的 rollout 数量。预算跟着不确定性走，不必平均撒给每一道题。
@@ -533,14 +533,14 @@ H^*
 =
 \arg\max_H
 \left[
-J_{\text{generalization}}(H)
+J_{\mathrm{generalization}}(H)
 -\lambda C(H)
 -\mu F(H)
 -\nu E(H)
 \right]
 $$
 
-$J_{\text{generalization}}$ 衡量泛化表现，$C(H)$ 是 Harness 复杂度，$F(H)$ 记录遗忘和能力回退，$E(H)$ 计算 Token、步数和时间等执行成本。
+$J_{\mathrm{generalization}}$ 衡量泛化表现，$C(H)$ 是 Harness 复杂度，$F(H)$ 记录遗忘和能力回退，$E(H)$ 计算 Token、步数和时间等执行成本。
 
 我们想练出的 Agent，得会做没见过的题。它不能为了多拿半分长出八千 Token 的规则，也不能刚学会数据库，就把文件系统忘了。
 

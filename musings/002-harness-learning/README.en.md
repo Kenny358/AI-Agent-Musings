@@ -324,7 +324,7 @@ If most training tasks concern shell and file operations, the Evolver will becom
 Categories should therefore contain similar numbers of tasks, and the primary score should use macro-averaged category accuracy.
 
 $$
-\text{MacroAccuracy}=\frac{1}{C}\sum_{c=1}^{C}S_c
+\mathrm{MacroAccuracy}=\frac{1}{C}\sum_{c=1}^{C}S_c
 $$
 
 Balanced counts solve only half the problem. We must also prevent leakage.
@@ -406,7 +406,7 @@ Running a task five times reduces noise. Running every training task five times 
 Batching and adaptive sampling are more practical. Stable successes and stable failures receive fewer runs. Uncertain tasks, representative failures, and tasks affected by the latest update receive more.
 
 $$
-k_i=f(\text{uncertainty}_i)
+k_i=f(\mathrm{uncertainty}_i)
 $$
 
 The report should contain outcome metrics such as per-category accuracy, macro accuracy, ID, and OOD results. Process metrics should track tool calls, steps, tokens, runtime, invalid tool calls, retries, and error recovery.
@@ -444,10 +444,10 @@ Model transfer is another useful later experiment. Evolve a harness with one bas
 The final objective should account for more than accuracy.
 
 $$
-H^*=\arg\max_H\left[J_{\text{generalization}}(H)-\lambda C(H)-\mu F(H)-\nu E(H)\right]
+H^*=\arg\max_H\left[J_{\mathrm{generalization}}(H)-\lambda C(H)-\mu F(H)-\nu E(H)\right]
 $$
 
-$J_{\text{generalization}}$ measures generalization, $C(H)$ harness complexity, $F(H)$ forgetting and capability regression, and $E(H)$ execution cost in tokens, steps, and time.
+$J_{\mathrm{generalization}}$ measures generalization, $C(H)$ harness complexity, $F(H)$ forgetting and capability regression, and $E(H)$ execution cost in tokens, steps, and time.
 
 The agent we want should solve tasks it has never seen. It should not grow eight thousand tokens of rules for half a point, and it should not forget the filesystem the moment it learns databases.
 
